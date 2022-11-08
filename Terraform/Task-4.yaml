@@ -1,0 +1,13 @@
+---
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags:
+        - Key: Name
+          Value: LUIT CF Project
+  Export:
+    Name: LUIT CF Project
+
+

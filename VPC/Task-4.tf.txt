@@ -1,0 +1,164 @@
+#Creating A vpc.
+resource "aws_vpc" "main" {
+  cidr_block       = "50.20.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name        = "main-terraform"
+    Banglore    = "Banglore"
+    Client      = "Relavancelab"
+    Environment = "dev"
+  }
+}
+
+# Creating Subnets
+
+resource "aws_subnet" "public_1"{
+  vpc_id = aws_vpc.main.id
+  cidr_block = "50.20.1.0/24"
+  availability_zone = "ap-south-1a"
+  map_public_ip_on_launch = true
+}
+
+resource "aws_subnet" "public_2"{
+  vpc_id = aws_vpc.main.id
+  cidr_block = "50.20.2.0/24"
+  availability_zone = "ap-south-1a"
+  map_public_ip_on_launch = true
+}
+
+resource "aws_subnet" "private_1"{
+  vpc_id = aws_vpc.main.id
+  cidr_block = "50.20.3.0/24"
+  availability_zone = "ap-south-1a"
+  map_public_ip_on_launch = true
+}
+
+resource "aws_subnet" "private_2"{
+  vpc_id = aws_vpc.main.id
+  cidr_block = "50.20.4.0/24"
+  availability_zone = "ap-south-1a"
+  map_public_ip_on_launch = true
+}
+
+# Creating IGW
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = "vpc-0c4b2d660027ab61f"
+
+  tags = {
+    Name = "main"
+  }
+}
+
+# create security group for web servers
+
+resource "aws_security_group" "web_sg" {
+  name        = "web_sg"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "http for web servers"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "ssh for web servers"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web_sg"
+  }
+}
+
+# Creating Web Servers
+ resource "aws_instance" "web" {
+  ami                    = "ami-0e6329e222e662a52"
+  instance_type          = "t2.micro"
+  subnet_id              = "subnet-021fa55c160028851"
+  key_name               = "mumbai"
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.web_s3_profile.name
+  tags = {
+    Name = "HelloWorld"
+  }
+}
+
+# Creating S3
+
+# Variables:
+
+variable "aws_region" {
+  description = "The AWS region to use to create resources."
+  default     = "us-east-2"
+}
+
+variable "bucket_prefix" {
+    type        = string
+    description = "(required since we are not using 'bucket') Creates a unique bucket name beginning with the specified prefix. Conflicts with bucket."
+    default     = "my-s3bucket-"
+}
+
+variable "tags" {
+    type        = map
+    description = "(Optional) A mapping of tags to assign to the bucket."
+    default     = {
+        environment = "DEV"
+        terraform   = "true"
+    }
+}
+
+variable "versioning" {
+    type        = bool
+    description = "(Optional) A state of versioning."
+    default     = true
+}
+
+variable "acl" {
+    type        = string
+    description = " Defaults to private "
+    default     = "private"
+}
+
+# OutPuts:
+
+
+output "s3_bucket_name" {
+  value = aws_s3_bucket.my-s3-bucket.id
+}
+
+output "s3_bucket_region" {
+    value = aws_s3_bucket.my-s3-bucket.region
+}
+
+# Main:
+
+provider "aws" {
+  region = var.aws_region
+}
+
+resource "aws_s3_bucket" "my-s3-bucket" {
+  bucket_prefix = var.bucket_prefix
+  acl = var.acl
+  
+   versioning {
+    enabled = var.versioning
+  }
+  
+  tags = var.tags
+}
+

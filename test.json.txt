@@ -1,0 +1,8 @@
+{
+  "Type" : "AWS::EC2::VPC",
+  "Properties" : {
+      "CidrBlock" : "10.20.0.0/16",
+      "InstanceTenancy" : "default"
+      "Tags" : [ Tag, ... ]
+    }
+}

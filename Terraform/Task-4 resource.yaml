@@ -1,0 +1,135 @@
+Mappings:
+  RegionMap:
+    ap-northeast-1:
+     "AMI": "ami-0de5311b2a443fb89"
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags:
+        - Key: Name
+          Value: Devops
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: DevOps
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+  
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: DevOps
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Devops
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      CidrBlock: 10.0.11.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: DevOps
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: 10.0.12.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: DevOps
+  WebServerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable HTTP from 0.0.0.0/0
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: t2.micro
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds: 
+        - !Ref WebServerSecurityGroup
+      Tags:
+       - Key: Name
+         Value: DevOps
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: vel12345
+Outputs:
+  PublicIp:
+    Description: EC2 Instance Public Ip
+    Value: !GetAtt EC2Instance.PublicIp
+  PrivateIp:
+    Description: EC2 Instance Private Ip
+    Value: !GetAtt EC2Instance.PrivateIp
+  InstanceID:
+    Description: The Instance ID
+    Value: !Ref EC2Instance
+  VPC: 
+    Description: The ID of the VPC
+    Value: !Ref VPC
+  PublicSubnet1:
+    Description: A subnet
+    Value: !Ref PublicSubnet1
+  PublicSubnet2:
+    Description: A subnet
+    Value: !Ref PublicSubnet2
+  PrivateSubnet1:
+    Description: A subnet
+    Value: !Ref PrivateSubnet1
+  PrivateSubnet2:
+    Description: A subnet
+    Value: !Ref PrivateSubnet2
+  InternetgatewayID:
+    Description: A reference to the created Internet gateway
+    Value: !Ref InternetGateway
+  outputAttachGateway:
+    Description: A reference to the created attach gateway resource
+    Value: !Ref InternetGateway
+  WebServerSecurityGroupId:
+    Description: WebServerSecurityGroup
+    Value: !Ref WebServerSecurityGroup
+  BucketName:
+    Description: S3Bucket
+    Value: !Ref S3Bucket
+
+        

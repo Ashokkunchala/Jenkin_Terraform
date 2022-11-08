@@ -1,0 +1,10 @@
+# YAML for installing HTTP Server using Ansible
+
+service: httpd # name of the service
+state: started # state of the service
+
+foo: True
+bar: False
+device1: On
+device2: Off
+

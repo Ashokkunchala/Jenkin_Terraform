@@ -1,0 +1,26 @@
+---
+Resources:
+  PublicSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties: 
+       AvailabilityZone: ap-northeast-1c
+       CidrBlock: 10.0.1.0/24
+       VpcId: vpc-0c6b872f8e919f2db
+  PublicSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties: 
+       AvailabilityZone: ap-northeast-1c
+       CidrBlock: 10.0.2.0/24
+       VpcId: vpc-0c6b872f8e919f2db
+  PrivateSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties: 
+       AvailabilityZone: ap-northeast-1c
+       CidrBlock: 10.0.3.0/24
+       VpcId: vpc-0c6b872f8e919f2db
+  PrivateSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties: 
+       AvailabilityZone: ap-northeast-1c
+       CidrBlock: 10.0.4.0/24
+       VpcId: vpc-0c6b872f8e919f2db

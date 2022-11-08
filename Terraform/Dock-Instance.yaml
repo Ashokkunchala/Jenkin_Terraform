@@ -1,0 +1,16 @@
+Resources:
+  MyTask:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0de5311b2a443fb89
+      InstanceType: t2.micro
+      KeyName: Free
+      
+      UserData: !Base64 |
+        #!/bin/bash
+        # Install Docker
+        sudo yum update -y
+        sudo yum install docker -y
+        sudo service docker start
+        sudo usermod -a -G docker ec2-user
+        docker pull mysql:latest
