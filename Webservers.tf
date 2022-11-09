@@ -1,6 +1,6 @@
 resource "aws_instance" "ec2-example" {
   
-  ami             = " "
+  ami             = "ami-0e6329e222e662a52"
   instance_type   = "t2.micro"
   count = var.instance_count
   
